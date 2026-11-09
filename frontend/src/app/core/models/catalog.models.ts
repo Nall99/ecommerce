@@ -8,15 +8,15 @@ export interface Product {
   id: number;
   name: string;
   slug: string;
-  price: string; // o DRF serializa Decimal como string
+  price: string;
   image_url: string;
   category: Category;
   in_stock: boolean;
+  stock: number;
 }
 
 export interface ProductFull extends Product {
   description: string;
-  stock: number;
 }
 
 export interface Page<T> {

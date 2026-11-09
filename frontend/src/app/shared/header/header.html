@@ -1,0 +1,73 @@
+<header class="border-b border-stone-200 bg-white">
+  <div class="mx-auto flex h-18 max-w-[1200px] items-center gap-6 px-6">
+    <a routerLink="/" class="text-[22px] font-extrabold tracking-tight">Trama</a>
+
+    <nav class="hidden gap-6 text-[15px] font-semibold md:flex">
+      <a routerLink="/produtos" routerLinkActive="text-brand" class="hover:text-brand">
+        Produtos
+      </a>
+    </nav>
+
+    <div class="flex-1"></div>
+
+    <label class="hidden h-11 min-w-56 items-center gap-2 rounded-full bg-ground px-4 sm:flex">
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        class="text-muted"
+        aria-hidden="true"
+      >
+        <circle cx="11" cy="11" r="7" />
+        <path d="M20 20l-4-4" />
+      </svg>
+      <span class="sr-only">Buscar produtos</span>
+      <input
+        #q
+        type="search"
+        placeholder="Buscar produtos"
+        (keyup.enter)="search(q.value)"
+        class="w-full bg-transparent text-sm outline-none"
+      />
+    </label>
+
+    <button
+      type="button"
+      aria-label="Carrinho"
+      class="flex size-11 items-center justify-center rounded-full hover:bg-ground"
+    >
+      <a
+        routerLink="/carrinho"
+        [attr.aria-label]="'Carrinho, ' + cart.count() + ' itens'"
+        class="relative flex size-11 items-center justify-center rounded-full hover:bg-ground"
+      >
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M3 4h2l2.5 11h10L20 7H6" />
+          <circle cx="9" cy="20" r="1.5" />
+          <circle cx="17" cy="20" r="1.5" />
+        </svg>
+        @if (cart.count() > 0) {
+          <span
+            class="absolute right-0.5 top-1 flex min-w-[18px] items-center justify-center rounded-full bg-brand px-1 text-[11px] font-extrabold leading-[18px] text-white"
+          >
+            {{ cart.count() }}
+          </span>
+        }
+      </a>
+    </button>
+  </div>
+</header>

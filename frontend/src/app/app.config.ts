@@ -11,7 +11,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(awd),
+    provideHttpClient(),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
   ],
 };

@@ -1,0 +1,109 @@
+<h1 class="text-3xl font-extrabold tracking-tight">Carrinho</h1>
+
+@if (cart.items().length) {
+  <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
+    <ul class="flex flex-col gap-4">
+      @for (item of cart.items(); track item.id) {
+        <li class="flex gap-4 rounded-2xl bg-white p-4">
+          <a
+            [routerLink]="['/produtos', item.slug]"
+            class="size-24 shrink-0 overflow-hidden rounded-xl bg-sand sm:size-28"
+          >
+            @if (item.image_url) {
+              <img [src]="item.image_url" [alt]="item.name" class="size-full object-cover" />
+            }
+          </a>
+
+          <div class="flex flex-1 flex-col gap-2">
+            <div class="flex items-start justify-between gap-4">
+              <a [routerLink]="['/produtos', item.slug]" class="font-semibold hover:text-brand">
+                {{ item.name }}
+              </a>
+              <p class="font-extrabold">{{ item.price * item.quantity | currency: 'BRL' }}</p>
+            </div>
+            <p class="text-sm text-muted">{{ item.price | currency: 'BRL' }} cada</p>
+
+            <div class="mt-auto flex items-center justify-between">
+              <div class="flex items-center rounded-full border border-stone-300">
+                <button
+                  type="button"
+                  [attr.aria-label]="'Diminuir quantidade de ' + item.name"
+                  (click)="cart.setQuantity(item.id, item.quantity - 1)"
+                  class="size-10 rounded-full text-lg hover:bg-ground"
+                >
+                  −
+                </button>
+                <span class="w-8 text-center text-sm font-semibold" aria-live="polite">
+                  {{ item.quantity }}
+                </span>
+                <button
+                  type="button"
+                  [attr.aria-label]="'Aumentar quantidade de ' + item.name"
+                  [disabled]="item.quantity >= item.stock"
+                  (click)="cart.setQuantity(item.id, item.quantity + 1)"
+                  class="size-10 rounded-full text-lg hover:bg-ground disabled:cursor-not-allowed disabled:text-stone-300 disabled:hover:bg-transparent"
+                >
+                  +
+                </button>
+              </div>
+
+              <button
+                type="button"
+                (click)="cart.remove(item.id)"
+                class="text-sm font-semibold text-muted underline-offset-2 hover:text-red-700 hover:underline"
+              >
+                Remover
+              </button>
+            </div>
+          </div>
+        </li>
+      }
+    </ul>
+
+    <aside class="h-fit rounded-2xl bg-white p-6 lg:sticky lg:top-6">
+      <h2 class="text-lg font-extrabold">Resumo do pedido</h2>
+      <dl class="mt-4 flex flex-col gap-3 text-sm">
+        <div class="flex justify-between">
+          <dt class="text-muted">Subtotal ({{ cart.count() }} itens)</dt>
+          <dd class="font-semibold">{{ cart.subtotal() | currency: 'BRL' }}</dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-muted">Frete</dt>
+          <dd class="font-semibold">Calculado no checkout</dd>
+        </div>
+        <div class="flex justify-between border-t border-stone-200 pt-3 text-base">
+          <dt class="font-extrabold">Total</dt>
+          <dd class="font-extrabold">{{ cart.subtotal() | currency: 'BRL' }}</dd>
+        </div>
+      </dl>
+
+      <button
+        type="button"
+        class="mt-6 h-13 w-full rounded-full bg-brand font-extrabold text-white hover:opacity-90"
+      >
+        Finalizar compra
+      </button>
+      <a routerLink="/produtos" class="mt-3 block text-center text-sm font-semibold text-brand"
+        >Continuar comprando</a
+      >
+      <button
+        type="button"
+        (click)="cart.clear()"
+        class="mt-4 w-full text-center text-sm text-muted hover:text-red-700"
+      >
+        Esvaziar carrinho
+      </button>
+    </aside>
+  </div>
+} @else {
+  <div class="mt-8 rounded-3xl bg-white p-12 text-center">
+    <p class="text-lg font-semibold">Seu carrinho está vazio.</p>
+    <p class="mt-1 text-muted">Que tal dar uma olhada nas novidades?</p>
+    <a
+      routerLink="/produtos"
+      class="mt-6 inline-flex h-12 items-center rounded-full bg-brand px-7 font-extrabold text-white hover:opacity-90"
+    >
+      Ver produtos
+    </a>
+  </div>
+}

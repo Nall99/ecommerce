@@ -1,0 +1,52 @@
+<a routerLink="/produtos" class="text-sm font-semibold text-brand">← Voltar aos produtos</a>
+
+    @switch (state().status) {
+      @case ('loading') {
+        <div class="mt-6 grid gap-10 md:grid-cols-2" aria-busy="true">
+          <div class="aspect-square animate-pulse rounded-3xl bg-sand"></div>
+          <div class="flex flex-col gap-4">
+            <div class="h-8 w-2/3 animate-pulse rounded bg-sand"></div>
+            <div class="h-6 w-1/4 animate-pulse rounded bg-sand"></div>
+            <div class="h-24 animate-pulse rounded bg-sand"></div>
+          </div>
+        </div>
+      }
+      @case ('error') {
+        <p class="mt-6 rounded-2xl bg-white p-8 text-center">Produto não encontrado.</p>
+      }
+      @case ('ok') {
+        @let p = state().product!;
+        <div class="mt-6 grid gap-10 md:grid-cols-2">
+          <div class="aspect-square overflow-hidden rounded-3xl bg-sand">
+            @if (p.image_url) {
+              <img [src]="p.image_url" [alt]="p.name" class="size-full object-cover" />
+            } @else {
+              <div class="flex size-full items-center justify-center text-muted">Sem imagem</div>
+            }
+          </div>
+
+          <div class="flex flex-col items-start gap-4">
+            <a routerLink="/produtos" [queryParams]="{ category: p.category.slug }"
+               class="text-sm font-semibold text-muted hover:text-brand">{{ p.category.name }}</a>
+            <h1 class="text-4xl font-extrabold tracking-tight">{{ p.name }}</h1>
+            <p class="text-3xl font-extrabold">{{ p.price | currency: 'BRL' }}</p>
+
+            @if (p.in_stock) {
+              <p class="text-sm font-semibold text-brand">
+                Em estoque @if (p.stock <= 5) { · restam apenas {{ p.stock }} }
+              </p>
+            } @else {
+              <p class="text-sm font-semibold text-red-700">Indisponível no momento</p>
+            }
+
+            <p class="max-w-prose leading-relaxed text-stone-700">{{ p.description }}</p>
+
+            <button type="button" [disabled]="!p.in_stock"
+                    class="mt-2 h-13 rounded-full bg-brand px-8 font-extrabold text-white hover:opacity-90
+                           disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500">
+              Adicionar ao carrinho
+            </button>
+          </div>
+        </div>
+      }
+    }
