@@ -15,6 +15,8 @@ import { RouterLink } from '@angular/router';
 export class Home {
   private readonly products = inject(ProductService);
 
+  protected readonly heroImage = 'https://media.istockphoto.com/id/1395848227/pt/foto/rearview-shot-of-a-couple-taking-photos-of-big-ben-with-a-smartphone-while-exploring-the-city.jpg?s=2048x2048&w=is&k=20&c=zn1E2kOgcGzIFleqnTHvTs5hJiHhWKXBjpUeyK1giVs=';
+
   readonly categories = toSignal(this.products.categories(),{
     initialValue: [] as Category[]
   });

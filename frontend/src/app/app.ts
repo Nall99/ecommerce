@@ -6,6 +6,7 @@ import { Header } from './shared/header/header';
   selector: 'app-root',
   imports: [RouterOutlet, Header],
   templateUrl: './app.html',
+  host: { class: 'flex min-h-screen flex-col' },
   styleUrl: './app.css'
 })
 export class App {}

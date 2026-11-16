@@ -1,10 +1,12 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { ProductFull } from '../../../core/models/catalog.models';
 import { ProductService } from '../../../core/services/product.service';
+import { CartService } from '../../../core/services/cart.service';
+import { Product } from '../../../core/models/catalog.models';
 
 interface DetailState {
   status: 'loading' | 'ok' | 'error';
@@ -18,9 +20,12 @@ interface DetailState {
 })
 export class ProductDetail {
   private readonly products = inject(ProductService);
+  private readonly cart = inject(CartService)
 
-  // Vem de /produtos/:slug graças ao withComponentInputBinding()
   readonly slug = input.required<string>();
+
+  protected readonly qty = signal(1);
+  protected readonly feedback = signal<'' | 'added' | 'limit'>('');
 
   protected readonly state = toSignal(
     toObservable(this.slug).pipe(
@@ -34,4 +39,18 @@ export class ProductDetail {
     ),
     { initialValue: { status: 'loading', product: null } as DetailState },
   );
+  protected inCart(p: Product) {
+    return this.cart.quantityOf(p.id);
+  }
+
+  protected changeQty(delta: number, p: Product) {
+    this.qty.update((q) => Math.min(Math.max(1, q + delta), p.stock));
+  }
+
+  protected addToCart(p: Product) {
+    const ok = this.cart.add(p, this.qty());
+    this.feedback.set(ok ? 'added' : 'limit');
+    this.qty.set(1);
+  }
+
 }
