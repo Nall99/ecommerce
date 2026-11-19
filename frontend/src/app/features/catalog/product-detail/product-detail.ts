@@ -7,6 +7,7 @@ import { ProductFull } from '../../../core/models/catalog.models';
 import { ProductService } from '../../../core/services/product.service';
 import { CartService } from '../../../core/services/cart.service';
 import { Product } from '../../../core/models/catalog.models';
+import { CartPrompt } from '../../../core/services/cart-prompt.service';
 
 interface DetailState {
   status: 'loading' | 'ok' | 'error';
@@ -21,6 +22,7 @@ interface DetailState {
 export class ProductDetail {
   private readonly products = inject(ProductService);
   private readonly cart = inject(CartService)
+  private readonly prompt = inject(CartPrompt);
 
   readonly slug = input.required<string>();
 
@@ -49,8 +51,14 @@ export class ProductDetail {
 
   protected addToCart(p: Product) {
     const ok = this.cart.add(p, this.qty());
-    this.feedback.set(ok ? 'added' : 'limit');
     this.qty.set(1);
+
+    if (ok) {
+      this.feedback.set('');
+      this.prompt.itemAdded(p.name);
+    } else {
+      this.feedback.set('limit');
+    }
   }
 
 }

@@ -1,0 +1,126 @@
+<a routerLink="/carrinho" class="text-sm font-semibold text-brand">← Voltar ao carrinho</a>
+<h1 class="mt-2 text-3xl font-extrabold tracking-tight">Finalizar compra</h1>
+
+<form [formGroup]="form" (ngSubmit)="submit()" class="mt-8 grid gap-8 lg:grid-cols-[1fr_380px]">
+  <div class="flex flex-col gap-8">
+    <!-- Dados pessoais -->
+    <section class="rounded-2xl bg-white p-6">
+      <h2 class="text-lg font-extrabold">Seus dados</h2>
+      <div class="mt-4 grid gap-4 sm:grid-cols-6">
+        <div class="sm:col-span-6">
+          <label for="customer_name" class="text-sm font-semibold">Nome completo</label>
+          <input id="customer_name" formControlName="customer_name" autocomplete="name" [class]="cls('customer_name')" />
+          @if (err('customer_name'); as m) { <p class="mt-1 text-xs text-red-700">{{ m }}</p> }
+        </div>
+        <div class="sm:col-span-3">
+          <label for="email" class="text-sm font-semibold">E-mail</label>
+          <input id="email" type="email" formControlName="email" autocomplete="email" [class]="cls('email')" />
+          @if (err('email'); as m) { <p class="mt-1 text-xs text-red-700">{{ m }}</p> }
+        </div>
+        <div class="sm:col-span-3">
+          <label for="phone" class="text-sm font-semibold">Telefone / WhatsApp</label>
+          <input id="phone" type="tel" formControlName="phone" autocomplete="tel" placeholder="(73) 99999-9999" [class]="cls('phone')" />
+          @if (err('phone'); as m) { <p class="mt-1 text-xs text-red-700">{{ m }}</p> }
+        </div>
+      </div>
+    </section>
+
+    <!-- Endereço -->
+    <section class="rounded-2xl bg-white p-6">
+      <h2 class="text-lg font-extrabold">Endereço de entrega</h2>
+      <div class="mt-4 grid gap-4 sm:grid-cols-6">
+        <div class="sm:col-span-2">
+          <label for="cep" class="text-sm font-semibold">CEP</label>
+          <input id="cep" formControlName="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000"
+                 (blur)="lookupCep()" [class]="cls('cep')" />
+          @if (err('cep'); as m) { <p class="mt-1 text-xs text-red-700">{{ m }}</p> }
+        </div>
+        <div class="sm:col-span-4">
+          <label for="street" class="text-sm font-semibold">Rua</label>
+          <input id="street" formControlName="street" autocomplete="address-line1" [class]="cls('street')" />
+          @if (err('street'); as m) { <p class="mt-1 text-xs text-red-700">{{ m }}</p> }
+        </div>
+        <div class="sm:col-span-2">
+          <label for="number" class="text-sm font-semibold">Número</label>
+          <input id="number" formControlName="number" [class]="cls('number')" />
+          @if (err('number'); as m) { <p class="mt-1 text-xs text-red-700">{{ m }}</p> }
+        </div>
+        <div class="sm:col-span-4">
+          <label for="complement" class="text-sm font-semibold">Complemento <span class="font-normal text-muted">(opcional)</span></label>
+          <input id="complement" formControlName="complement" autocomplete="address-line2" [class]="cls('complement')" />
+        </div>
+        <div class="sm:col-span-3">
+          <label for="neighborhood" class="text-sm font-semibold">Bairro</label>
+          <input id="neighborhood" formControlName="neighborhood" [class]="cls('neighborhood')" />
+          @if (err('neighborhood'); as m) { <p class="mt-1 text-xs text-red-700">{{ m }}</p> }
+        </div>
+        <div class="sm:col-span-2">
+          <label for="city" class="text-sm font-semibold">Cidade</label>
+          <input id="city" formControlName="city" autocomplete="address-level2" [class]="cls('city')" />
+          @if (err('city'); as m) { <p class="mt-1 text-xs text-red-700">{{ m }}</p> }
+        </div>
+        <div class="sm:col-span-1">
+          <label for="state" class="text-sm font-semibold">UF</label>
+          <input id="state" formControlName="state" maxlength="2" autocomplete="address-level1" [class]="cls('state') + ' uppercase'" />
+          @if (err('state'); as m) { <p class="mt-1 text-xs text-red-700">{{ m }}</p> }
+        </div>
+      </div>
+    </section>
+
+    <!-- Pagamento -->
+    <section class="rounded-2xl bg-white p-6">
+      <h2 class="text-lg font-extrabold">Forma de pagamento</h2>
+      <fieldset class="mt-4 grid gap-3 sm:grid-cols-3">
+        <legend class="sr-only">Forma de pagamento</legend>
+        @for (m of methods; track m.value) {
+          <label class="flex cursor-pointer flex-col gap-1 rounded-2xl border-2 border-stone-200 bg-white p-4 has-[:checked]:border-brand has-[:checked]:bg-emerald-50 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand">
+            <input type="radio" formControlName="payment_method" [value]="m.value" class="sr-only" />
+            <span class="font-extrabold">{{ m.label }}</span>
+            <span class="text-xs text-muted">{{ m.hint }}</span>
+          </label>
+        }
+      </fieldset>
+      <p class="mt-3 text-xs text-muted">
+        Este é um projeto de portfólio: o pagamento é simulado e nenhuma cobrança é feita.
+      </p>
+    </section>
+  </div>
+
+  <!-- Resumo -->
+  <aside class="h-fit rounded-2xl bg-white p-6 lg:sticky lg:top-24">
+    <h2 class="text-lg font-extrabold">Resumo do pedido</h2>
+
+    @if (q(); as quote) {
+      <ul class="mt-4 flex flex-col gap-2 border-b border-stone-200 pb-4 text-sm">
+        @for (line of quote.items; track line.product_id) {
+          <li class="flex justify-between gap-4">
+            <span>{{ line.quantity }}× {{ line.name }}</span>
+            <span class="font-semibold">{{ line.line_total | currency: 'BRL' }}</span>
+          </li>
+        }
+      </ul>
+      <div class="mt-4">
+        <app-order-totals [quote]="quote" />
+      </div>
+    } @else if (stateError()) {
+      <p class="mt-4 text-sm text-red-700" role="alert">
+        {{ stateError() }} <a routerLink="/carrinho" class="font-semibold underline">Revisar carrinho</a>
+      </p>
+    } @else {
+      <div class="mt-4 flex flex-col gap-3" aria-busy="true">
+        <div class="h-4 animate-pulse rounded bg-sand"></div>
+        <div class="h-4 animate-pulse rounded bg-sand"></div>
+        <div class="h-6 animate-pulse rounded bg-sand"></div>
+      </div>
+    }
+
+    @if (error()) {
+      <p class="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">{{ error() }}</p>
+    }
+
+    <button type="submit" [disabled]="submitting() || !q()"
+            class="mt-6 h-13 w-full rounded-full bg-brand font-extrabold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500">
+      {{ submitting() ? 'Processando...' : 'Confirmar pedido' }}
+    </button>
+  </aside>
+</form>

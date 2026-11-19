@@ -13,4 +13,10 @@
   body {
     @apply bg-ground font-sans text-ink antialiased;
   }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  select:not(:disabled) {
+    cursor: pointer;
+  }
 }

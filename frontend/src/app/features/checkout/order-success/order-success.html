@@ -1,0 +1,39 @@
+@if (order; as o) {
+  <div class="mx-auto max-w-2xl">
+    <div class="rounded-3xl bg-white p-8 text-center">
+      <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-emerald-50 text-2xl text-brand" aria-hidden="true">✓</div>
+      <h1 class="mt-4 text-3xl font-extrabold tracking-tight">Pedido recebido!</h1>
+      <p class="mt-2 text-muted">
+        Pedido <strong class="text-ink">#{{ o.number }}</strong> · {{ paymentLabels[o.payment_method] }}
+      </p>
+      <p class="mt-1 text-sm text-muted">
+        Enviaremos os detalhes para {{ o.email }}. (Projeto de portfólio: nenhum e-mail ou cobrança real é feito.)
+      </p>
+    </div>
+
+    <section class="mt-6 rounded-2xl bg-white p-6">
+      <h2 class="text-lg font-extrabold">Resumo</h2>
+      <ul class="mt-4 flex flex-col gap-2 border-b border-stone-200 pb-4 text-sm">
+        @for (item of o.items; track item.product_name) {
+          <li class="flex justify-between gap-4">
+            <span>{{ item.quantity }}× {{ item.product_name }}</span>
+            <span class="font-semibold">{{ item.line_total | currency: 'BRL' }}</span>
+          </li>
+        }
+      </ul>
+      <dl class="mt-4 flex flex-col gap-2 text-sm">
+        <div class="flex justify-between"><dt class="text-muted">Subtotal</dt><dd>{{ o.subtotal | currency: 'BRL' }}</dd></div>
+        @if (o.coupon_code) {
+          <div class="flex justify-between text-brand"><dt>Desconto ({{ o.coupon_code }})</dt><dd>− {{ o.discount | currency: 'BRL' }}</dd></div>
+        }
+        <div class="flex justify-between"><dt class="text-muted">Frete</dt><dd>{{ o.shipping | currency: 'BRL' }}</dd></div>
+        <div class="flex justify-between border-t border-stone-200 pt-3 text-base font-extrabold"><dt>Total</dt><dd>{{ o.total | currency: 'BRL' }}</dd></div>
+      </dl>
+    </section>
+
+    <a routerLink="/produtos"
+       class="mt-6 flex h-13 items-center justify-center rounded-full bg-brand font-extrabold text-white hover:opacity-90">
+      Continuar comprando
+    </a>
+  </div>
+}

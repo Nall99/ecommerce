@@ -1,0 +1,32 @@
+<dl class="flex flex-col gap-3 text-sm">
+      <div class="flex justify-between">
+        <dt class="text-muted">Subtotal</dt>
+        <dd class="font-semibold">{{ quote().subtotal | currency: 'BRL' }}</dd>
+      </div>
+
+      @if (hasDiscount()) {
+        <div class="flex justify-between text-brand">
+          <dt>Desconto @if (quote().coupon; as c) { ({{ c.code }}) }</dt>
+          <dd class="font-semibold">− {{ quote().discount | currency: 'BRL' }}</dd>
+        </div>
+      }
+
+      <div class="flex justify-between">
+        <dt class="text-muted">Frete</dt>
+        <dd class="font-semibold">
+          @if (freeShipping()) { Grátis } @else { {{ quote().shipping | currency: 'BRL' }} }
+        </dd>
+      </div>
+
+      <div class="flex justify-between border-t border-stone-200 pt-3 text-base">
+        <dt class="font-extrabold">Total</dt>
+        <dd class="font-extrabold">{{ quote().total | currency: 'BRL' }}</dd>
+      </div>
+    </dl>
+
+    @if (missingForFree() > 0) {
+      <p class="mt-3 rounded-xl bg-ground px-3 py-2 text-xs text-muted">
+        Faltam <strong class="text-ink">{{ missingForFree() | currency: 'BRL' }}</strong>
+        para ganhar frete grátis.
+      </p>
+    }

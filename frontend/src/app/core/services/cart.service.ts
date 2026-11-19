@@ -1,5 +1,6 @@
 import { Injectable, computed, effect, signal } from '@angular/core';
 import { Product } from '../models/catalog.models';
+import { RequestItem } from '../models/order.models';
 
 export interface CartItem {
   id: number;
@@ -11,24 +12,36 @@ export interface CartItem {
   stock: number;
 }
 
-const STORAGE_KEY = 'shop.cart.v1';
+const CART_KEY = 'shop.cart.v1';
+const COUPON_KEY = 'shop.coupon.v1';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  private readonly _items = signal<CartItem[]>(this.load());
+  private readonly _items = signal<CartItem[]>(this.loadItems());
+  private readonly _coupon = signal<string | null>(this.loadCoupon());
 
   readonly items = this._items.asReadonly();
+  readonly coupon = this._coupon.asReadonly();
   readonly count = computed(() => this._items().reduce((sum, i) => sum + i.quantity, 0));
   readonly subtotal = computed(() =>
     this._items().reduce((sum, i) => sum + i.price * i.quantity, 0),
   );
 
   constructor() {
-    effect(() => this.save(this._items()));
+    effect(() => this.write(CART_KEY, JSON.stringify(this._items())));
+    effect(() => {
+      const code = this._coupon();
+      code ? this.write(COUPON_KEY, code) : this.remove_(COUPON_KEY);
+    });
   }
 
   quantityOf(productId: number): number {
     return this._items().find((i) => i.id === productId)?.quantity ?? 0;
+  }
+
+  /** Itens no formato que a API espera (só id e quantidade). */
+  toRequestItems(): RequestItem[] {
+    return this._items().map((i) => ({ product_id: i.id, quantity: i.quantity }));
   }
 
   /** Retorna false quando nada foi adicionado (estoque já atingido). */
@@ -48,9 +61,7 @@ export class CartService {
     };
 
     this._items.update((items) =>
-      inCart > 0
-        ? items.map((i) => (i.id === product.id ? item : i))
-        : [...items, item],
+      inCart > 0 ? items.map((i) => (i.id === product.id ? item : i)) : [...items, item],
     );
     return true;
   }
@@ -58,9 +69,7 @@ export class CartService {
   setQuantity(productId: number, quantity: number) {
     if (quantity <= 0) return this.remove(productId);
     this._items.update((items) =>
-      items.map((i) =>
-        i.id === productId ? { ...i, quantity: Math.min(quantity, i.stock) } : i,
-      ),
+      items.map((i) => (i.id === productId ? { ...i, quantity: Math.min(quantity, i.stock) } : i)),
     );
   }
 
@@ -68,25 +77,57 @@ export class CartService {
     this._items.update((items) => items.filter((i) => i.id !== productId));
   }
 
-  clear() {
-    this._items.set([]);
+  setCoupon(code: string) {
+    this._coupon.set(code.trim().toUpperCase() || null);
   }
 
-  private load(): CartItem[] {
+  clearCoupon() {
+    this._coupon.set(null);
+  }
+
+  clear() {
+    this._items.set([]);
+    this._coupon.set(null);
+  }
+
+  private loadItems(): CartItem[] {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(CART_KEY);
       const data = raw ? JSON.parse(raw) : [];
-      return Array.isArray(data) ? data : [];
+      if (!Array.isArray(data)) return [];
+      return data.filter(
+        (i) =>
+          Number.isFinite(i?.price) &&
+          Number.isFinite(i?.stock) &&
+          Number.isFinite(i?.quantity) &&
+          i.quantity > 0,
+      );
     } catch {
       return [];
     }
   }
 
-  private save(items: CartItem[]) {
+  private loadCoupon(): string | null {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      return localStorage.getItem(COUPON_KEY);
     } catch {
-      // armazenamento indisponível (modo privado, cota cheia): segue em memória
+      return null;
+    }
+  }
+
+  private write(key: string, value: string) {
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      // armazenamento indisponível: segue em memória
+    }
+  }
+
+  private remove_(key: string) {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // idem
     }
   }
 }

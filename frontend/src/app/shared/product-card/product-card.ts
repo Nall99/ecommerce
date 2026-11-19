@@ -1,20 +1,21 @@
-import { Component, input, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { Product } from '../../core/models/catalog.models';
+import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Product } from '../../core/models/catalog.models';
+import { CartPrompt } from '../../core/services/cart-prompt.service';
 import { CartService } from '../../core/services/cart.service';
 
 @Component({
-  imports: [CurrencyPipe, RouterLink],
+  imports: [RouterLink, CurrencyPipe],
   selector: 'app-product-card',
   styleUrl: './product-card.css',
   templateUrl: './product-card.html',
 })
 export class ProductCard {
   private readonly cart = inject(CartService);
+  private readonly prompt = inject(CartPrompt);
 
   readonly product = input.required<Product>();
-  protected readonly added = signal(false);
 
   private readonly atLimit = computed(
     () => this.cart.quantityOf(this.product().id) >= this.product().stock,
@@ -24,15 +25,13 @@ export class ProductCard {
 
   protected readonly label = computed(() => {
     if (!this.product().in_stock) return 'Indisponível';
-    if (this.added()) return 'Adicionado ✓';
     if (this.atLimit()) return 'Máximo no carrinho';
     return 'Adicionar ao carrinho';
   });
 
   protected addToCart() {
     if (this.cart.add(this.product())) {
-      this.added.set(true);
-      setTimeout(() => this.added.set(false), 1500);
+      this.prompt.itemAdded(this.product().name);
     }
   }
 }

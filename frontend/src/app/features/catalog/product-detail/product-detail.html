@@ -16,10 +16,11 @@
 }
 @case ('ok') {
 @let p = state().product!;
-<div class="mt-6 grid gap-10 md:grid-cols-2">
-  <div class="aspect-square overflow-hidden rounded-3xl bg-sand">
+<div class="mt-6 grid gap-10 md:grid-cols-[minmax(0,420px)_1fr]">
+  <div class="aspect-square w-full max-w-md overflow-hidden rounded-3xl bg-white
+           md:sticky md:top-24 md:max-w-none md:self-start">
     @if (p.image_url) {
-    <img [src]="p.image_url" [alt]="p.name" class="size-full object-cover" />
+    <img [src]="p.image_url" [alt]="p.name" class="size-full object-contain p-4" />
     } @else {
     <div class="flex size-full items-center justify-center text-muted">Sem imagem</div>
     }
