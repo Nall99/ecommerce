@@ -4,5 +4,5 @@ set -o errexit
 pip install -r requirements.txt
 python manage.py collectstatic --noinput
 python manage.py migrate
-python manage.py seed                          # remova depois do 1º deploy
+python manage.py seed_coupons
 python manage.py createsuperuser --noinput || true
