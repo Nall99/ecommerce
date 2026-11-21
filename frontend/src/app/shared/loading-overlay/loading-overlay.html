@@ -1,0 +1,23 @@
+@if (loading.visible()) {
+      <div
+        class="fixed inset-0 z-[60] flex items-center justify-center bg-ink/40 p-6 backdrop-blur-sm"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        <div class="flex max-w-sm flex-col items-center gap-4 rounded-3xl bg-white p-8 text-center shadow-xl">
+          <div
+            class="size-12 animate-spin rounded-full border-4 border-sand border-t-brand motion-reduce:animate-none"
+            aria-hidden="true"
+          ></div>
+          <p class="text-lg font-extrabold">Carregando...</p>
+          @if (loading.slow()) {
+            <p class="text-sm text-muted">
+              O servidor gratuito está acordando. Na primeira visita isso pode levar até 1 minuto.
+            </p>
+          } @else {
+            <p class="text-sm text-muted">Buscando as informações da loja.</p>
+          }
+        </div>
+      </div>
+    }
